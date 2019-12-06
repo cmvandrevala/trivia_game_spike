@@ -1,6 +1,9 @@
+require_relative './io.rb'
+
 module UglyTrivia
   class Game
-    def  initialize
+    def initialize(io = Io.new)
+      @io = io
       @players = []
       @places = Array.new(6, 0)
       @purses = Array.new(6, 0)
@@ -36,8 +39,8 @@ module UglyTrivia
       @purses[how_many_players] = 0
       @in_penalty_box[how_many_players] = false
 
-      puts "#{player_name} was added"
-      puts "They are player number #{@players.length}"
+      @io.write "#{player_name} was added"
+      @io.write "They are player number #{@players.length}"
 
       true
     end
@@ -77,7 +80,45 @@ module UglyTrivia
       end
     end
 
+    def was_correctly_answered
+      if @in_penalty_box[@current_player]
+        if @is_getting_out_of_penalty_box
+          puts 'Answer was correct!!!!'
+          @purses[@current_player] += 1
+          puts "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
+          cycle_player()
+          did_player_win()
+        else
+          cycle_player()
+          true
+        end
+      else
+        puts "Answer was corrent!!!!"
+        @purses[@current_player] += 1
+        puts "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
+        cycle_player()
+        did_player_win()
+      end
+    end
+
+    def wrong_answer
+  		puts 'Question was incorrectly answered'
+  		puts "#{@players[@current_player]} was sent to the penalty box"
+  		@in_penalty_box[@current_player] = true
+      cycle_player()
+  		return true
+    end
+
   private
+
+    def cycle_player
+      @current_player += 1
+      @current_player = 0 if @current_player == @players.length
+    end
+
+    def did_player_win
+      !(@purses[@current_player] == 6)
+    end
 
     def ask_question
       puts @pop_questions.shift if current_category == 'Pop'
@@ -97,58 +138,6 @@ module UglyTrivia
       return 'Sports' if @places[@current_player] == 6
       return 'Sports' if @places[@current_player] == 10
       return 'Rock'
-    end
-
-  public
-
-    def was_correctly_answered
-      if @in_penalty_box[@current_player]
-        if @is_getting_out_of_penalty_box
-          puts 'Answer was correct!!!!'
-          @purses[@current_player] += 1
-          puts "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
-
-          winner = did_player_win()
-          @current_player += 1
-          @current_player = 0 if @current_player == @players.length
-
-          winner
-        else
-          @current_player += 1
-          @current_player = 0 if @current_player == @players.length
-          true
-        end
-
-
-
-      else
-
-        puts "Answer was corrent!!!!"
-        @purses[@current_player] += 1
-        puts "#{@players[@current_player]} now has #{@purses[@current_player]} Gold Coins."
-
-        winner = did_player_win
-        @current_player += 1
-        @current_player = 0 if @current_player == @players.length
-
-        return winner
-      end
-    end
-
-    def wrong_answer
-  		puts 'Question was incorrectly answered'
-  		puts "#{@players[@current_player]} was sent to the penalty box"
-  		@in_penalty_box[@current_player] = true
-
-      @current_player += 1
-      @current_player = 0 if @current_player == @players.length
-  		return true
-    end
-
-  private
-
-    def did_player_win
-      !(@purses[@current_player] == 6)
     end
   end
 end

@@ -1,0 +1,15 @@
+ruby 2.6.2
+
+
+```
+type foobar
+> foobar not found
+
+type -a ls
+> ls is an alias for ls -G
+> ls is /bin/ls
+
+type ruby
+> ruby is /Users/cyrus/.asdf/shims/ruby
+> ruby is /usr/bin/ruby
+```
